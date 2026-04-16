@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ponto Fácil</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f2eb; --surface: #ede9e0; --card: #fff; --border: #ddd8cc;
+  --accent: #1a6b4a; --accent-light: #e8f5ef;
+  --accent2: #c0392b; --accent2-light: #fdecea;
+  --warn: #b7770d; --warn-light: #fef6e4;
+  --muted: #8a8070; --text: #1c1a16;
+  --font-d: 'Syne', sans-serif; --font-m: 'DM Mono', monospace;
+  --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-d); min-height: 100vh; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8c0b0' fill-opacity='0.18'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+}
+.app { position:relative; z-index:1; max-width:460px; margin:0 auto; padding:24px 16px 80px; }
+
+/* SETUP */
+.setup-wrap { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px; position:relative; z-index:1; }
+.brand { text-align:center; margin-bottom:32px; }
+.brand-mark { width:64px; height:64px; background:var(--accent); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 14px; box-shadow:0 4px 20px rgba(26,107,74,0.3); }
+.brand h1 { font-size:30px; font-weight:800; letter-spacing:-1px; }
+.brand h1 span { color:var(--accent); }
+.brand p { color:var(--muted); font-size:14px; margin-top:6px; }
+.setup-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:28px; width:100%; max-width:380px; box-shadow:var(--shadow); }
+.setup-card h2 { font-size:17px; font-weight:700; margin-bottom:20px; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:6px; font-weight:600; }
+.field input,.field select { width:100%; padding:13px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--surface); font-family:var(--font-d); font-size:15px; color:var(--text); outline:none; transition:border-color 0.2s; }
+.field input:focus,.field select:focus { border-color:var(--accent); background:#fff; }
+.btn-p { width:100%; padding:14px; border-radius:11px; border:none; background:var(--accent); color:#fff; font-family:var(--font-d); font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-top:4px; }
+.btn-p:hover { background:#155a3e; transform:translateY(-1px); box-shadow:0 4px 16px rgba(26,107,74,0.3); }
+.btn-p:disabled { opacity:0.5; cursor:default; transform:none; box-shadow:none; }
+.btn-g { width:100%; padding:12px; border-radius:11px; border:1.5px solid var(--border); background:transparent; color:var(--muted); font-family:var(--font-d); font-size:14px; cursor:pointer; transition:all 0.2s; margin-top:10px; }
+.btn-g:hover { border-color:var(--accent); color:var(--accent); }
+.divider { text-align:center; color:var(--muted); font-size:12px; margin:14px 0; }
+
+/* HEADER */
+header { display:flex; align-items:center; justify-content:space-between; padding-bottom:18px; border-bottom:1px solid var(--border); margin-bottom:22px; }
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-mark { width:36px; height:36px; background:var(--accent); border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; }
+.logo-text { font-size:19px; font-weight:800; }
+.logo-text span { color:var(--accent); }
+.user-pill { display:flex; align-items:center; gap:8px; background:var(--accent-light); border:1px solid #c5e0d4; border-radius:30px; padding:6px 12px; font-size:13px; font-weight:600; color:var(--accent); }
+.user-pill .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); }
+.logout-btn { background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:4px 6px; border-radius:6px; }
+.logout-btn:hover { background:var(--accent2-light); color:var(--accent2); }
+
+/* CLOCK */
+.clock-block { text-align:center; margin-bottom:18px; padding:18px; background:var(--card); border-radius:var(--radius); border:1px solid var(--border); box-shadow:var(--shadow); }
+#live-clock { font-family:var(--font-m); font-size:44px; font-weight:500; color:var(--accent); letter-spacing:-2px; line-height:1; }
+#live-date { font-size:12px; color:var(--muted); margin-top:6px; text-transform:uppercase; letter-spacing:1.2px; }
+
+/* REST BLOCK */
+.rest-block { display:none; background:var(--accent2-light); border:1.5px solid #f5c6c2; border-radius:var(--radius); padding:18px 20px; margin-bottom:16px; text-align:center; }
+.rest-block.show { display:block; }
+.rb-title { font-size:15px; font-weight:700; color:var(--accent2); margin-bottom:6px; }
+.rb-count { font-family:var(--font-m); font-size:32px; color:var(--accent2); font-weight:500; }
+.rb-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* STATUS BANNER */
+.status-banner { display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:var(--radius); border:1.5px solid; margin-bottom:16px; }
+.status-banner.idle   { background:var(--surface); border-color:var(--border); }
+.status-banner.active { background:var(--accent-light); border-color:#b0d9c5; }
+.status-banner.paused { background:var(--warn-light); border-color:#f0d090; }
+.status-banner.done   { background:#f0f0f0; border-color:#d0d0d0; }
+.sb-icon { font-size:24px; }
+.sb-info { flex:1; }
+.sb-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+.sb-val { font-size:15px; font-weight:700; margin-top:2px; }
+.sb-val.green { color:var(--accent); } .sb-val.yellow { color:var(--warn); } .sb-val.gray { color:var(--muted); }
+.hours-badge { font-family:var(--font-m); font-size:19px; font-weight:500; color:var(--accent); }
+
+/* PUNCH */
+.punch-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.punch-btn { padding:17px 14px; border-radius:var(--radius); border:1.5px solid; font-family:var(--font-d); font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left; background:var(--card); }
+.punch-btn .p-icon { font-size:20px; margin-bottom:4px; }
+.punch-btn .p-sub { font-size:11px; font-weight:400; opacity:0.6; }
+.btn-in    { border-color:var(--accent); color:var(--accent); }
+.btn-in:hover:not(:disabled)    { background:var(--accent); color:#fff; transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,107,74,0.25); }
+.btn-pause { border-color:var(--warn); color:var(--warn); }
+.btn-pause:hover:not(:disabled) { background:var(--warn); color:#fff; transform:translateY(-2px); }
+.btn-ret   { border-color:var(--muted); color:var(--muted); }
+.btn-ret:hover:not(:disabled)   { background:var(--muted); color:#fff; transform:translateY(-2px); }
+.btn-out   { border-color:var(--accent2); color:var(--accent2); }
+.btn-out:hover:not(:disabled)   { background:var(--accent2); color:#fff; transform:translateY(-2px); box-shadow:0 6px 20px rgba(192,57,43,0.25); }
+.punch-btn:disabled { opacity:0.22; cursor:default; transform:none !important; box-shadow:none !important; }
+
+/* ALERT */
+.alert-warn { display:none; align-items:center; gap:10px; border-radius:10px; padding:12px 16px; margin-bottom:14px; font-size:13px; background:var(--warn-light); border:1.5px solid #f0d090; color:var(--warn); }
+.alert-warn.show { display:flex; }
+
+/* LUNCH REMINDER */
+.lunch-reminder {
+  display:none; position:relative; overflow:hidden;
+  align-items:center; gap:14px;
+  border-radius:var(--radius); padding:16px 18px; margin-bottom:16px;
+  background:#fff3cd; border:2px solid #f0a500; color:#7a4f00;
+  animation: pulseBorder 1.2s ease-in-out infinite;
+}
+.lunch-reminder.show { display:flex; }
+@keyframes pulseBorder {
+  0%,100% { border-color:#f0a500; box-shadow:0 0 0 0 rgba(240,165,0,0.4); background:#fff3cd; }
+  50%      { border-color:#c97d00; box-shadow:0 0 0 6px rgba(240,165,0,0); background:#ffe89a; }
+}
+.lr-icon { font-size:28px; animation: shake 1.2s ease-in-out infinite; flex-shrink:0; }
+@keyframes shake {
+  0%,100%{ transform:rotate(0deg); }
+  20%    { transform:rotate(-15deg); }
+  40%    { transform:rotate(15deg); }
+  60%    { transform:rotate(-10deg); }
+  80%    { transform:rotate(10deg); }
+}
+.lr-body { flex:1; }
+.lr-title { font-size:15px; font-weight:800; margin-bottom:2px; }
+.lr-sub { font-size:12px; opacity:0.8; }
+
+/* TIMELINE */
+.section-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:10px; font-weight:600; }
+.timeline { display:flex; flex-direction:column; gap:6px; }
+.tl-item { display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; animation:fadeUp 0.3s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+.tl-pip { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.tl-body { flex:1; }
+.tl-label { font-size:13px; font-weight:600; }
+.tl-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.tl-warn { font-size:10px; color:var(--warn); font-weight:700; }
+.tl-time { font-family:var(--font-m); font-size:13px; color:var(--muted); flex-shrink:0; }
+
+/* TABS */
+.tabs { display:flex; gap:4px; background:var(--surface); border-radius:11px; padding:4px; margin-bottom:18px; border:1px solid var(--border); }
+.tab { flex:1; padding:9px; text-align:center; cursor:pointer; border-radius:8px; font-size:12px; font-weight:700; color:var(--muted); transition:all 0.2s; border:none; background:none; font-family:var(--font-d); }
+.tab.active { background:var(--accent); color:#fff; }
+.tab:not(.active):hover { color:var(--text); background:var(--card); }
+.panel { display:none; } .panel.active { display:block; }
+
+/* DASHBOARD */
+.dash-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); }
+.dash-row { display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); transition:background 0.15s; }
+.dash-row:last-child { border-bottom:none; }
+.dash-row:hover { background:var(--surface); }
+.dash-avatar { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.dash-info { flex:1; min-width:0; }
+.dash-name { font-size:14px; font-weight:700; }
+.dash-status { font-size:12px; color:var(--muted); margin-top:1px; }
+.dash-right { display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+.db { font-size:11px; padding:3px 8px; border-radius:20px; font-weight:700; }
+.db-on   { background:var(--accent-light); color:var(--accent); }
+.db-p    { background:var(--warn-light); color:var(--warn); }
+.db-rest { background:var(--accent2-light); color:var(--accent2); }
+.db-off  { background:#f0f0f0; color:#999; }
+.dash-time { font-family:var(--font-m); font-size:12px; color:var(--accent); }
+
+/* REPORT */
+.report-controls { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.report-controls input,.report-controls select { flex:1; min-width:120px; padding:9px 12px; background:var(--card); border:1px solid var(--border); color:var(--text); font-family:var(--font-d); font-size:13px; border-radius:8px; outline:none; }
+.export-btn { padding:9px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-family:var(--font-d); font-size:13px; font-weight:700; cursor:pointer; }
+.export-btn:hover { background:#155a3e; }
+.report-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:auto; box-shadow:var(--shadow); }
+.rtable { width:100%; border-collapse:collapse; font-size:12px; min-width:500px; }
+.rtable th { background:var(--surface); text-align:left; padding:10px 12px; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.rtable td { padding:10px 12px; border-bottom:1px solid var(--border); font-family:var(--font-m); vertical-align:top; }
+.rtable tr:last-child td { border-bottom:none; }
+.rtable tr:hover td { background:var(--surface); }
+.c-extra { color:var(--accent2); font-weight:600; } .c-ok { color:var(--accent); }
+.sw { font-size:10px; color:var(--warn); display:block; }
+
+/* TEAM */
+.emp-list { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+.emp-row { display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow); }
+.emp-av { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.emp-inf { flex:1; } .emp-inf h4 { font-size:14px; font-weight:700; } .emp-inf p { font-size:12px; color:var(--muted); margin-top:2px; }
+.emp-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:6px; border-radius:6px; }
+.emp-del:hover { background:var(--accent2-light); color:var(--accent2); }
+.add-form { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+.add-form h3 { font-size:15px; font-weight:700; margin-bottom:16px; }
+.form2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+
+/* MISC */
+.loading { text-align:center; padding:40px 20px; color:var(--muted); }
+.spinner { width:28px; height:28px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.empty { text-align:center; padding:40px 20px; color:var(--muted); font-size:14px; }
+.empty .ei { font-size:36px; margin-bottom:10px; }
+.toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); padding:12px 24px; border-radius:30px; font-weight:700; font-size:14px; transition:all 0.3s; z-index:9999; opacity:0; max-width:90vw; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.15); }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+.toast.ok   { background:var(--accent); color:#fff; }
+.toast.error{ background:var(--accent2); color:#fff; }
+.toast.warn { background:var(--warn); color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup-wrap" class="setup-wrap" style="display:none">
+  <div class="brand">
+    <div class="brand-mark">⏱</div>
+    <h1>Ponto<span>Fácil</span></h1>
+    <p>Todos batem ponto pelo celular — você vê tudo em tempo real.</p>
+  </div>
+  <div class="setup-card" id="card-emp">
+    <h2>Entrar para bater ponto</h2>
+    <div class="field"><label>Código da empresa</label><input id="l-code" type="text" placeholder="Ex: DEDETIZADORA" style="text-transform:uppercase"></div>
+    <div class="field"><label>Seu nome completo</label><input id="l-name" type="text" placeholder="Ex: Ana Silva" autocomplete="name"></div>
+    <button class="btn-p" onclick="loginEmp()">Entrar ▶</button>
+    <div class="divider">— ou —</div>
+    <button class="btn-g" onclick="showCard('card-admin')">Sou gestor</button>
+  </div>
+  <div class="setup-card" id="card-admin" style="display:none">
+    <h2>Acesso de gestor</h2>
+    <div class="field"><label>Código da empresa</label><input id="a-code" type="text" placeholder="Ex: DEDETIZADORA" style="text-transform:uppercase"></div>
+    <div class="field"><label>Senha</label><input id="a-pass" type="password" placeholder="••••••••"></div>
+    <button class="btn-p" onclick="loginAdmin()">Entrar como gestor</button>
+    <div class="divider">— ou —</div>
+    <button class="btn-g" onclick="showCard('card-create')">Criar nova empresa</button>
+    <button class="btn-g" onclick="showCard('card-emp')" style="margin-top:6px">← Voltar</button>
+  </div>
+  <div class="setup-card" id="card-create" style="display:none">
+    <h2>Criar empresa</h2>
+    <div class="field"><label>Nome da empresa</label><input id="c-name" type="text" placeholder="Ex: Controle Dedetizadora"></div>
+    <div class="field"><label>Código de acesso</label><input id="c-code" type="text" placeholder="Ex: DEDETIZADORA" style="text-transform:uppercase"></div>
+    <div class="field"><label>Senha do gestor</label><input id="c-pass" type="password" placeholder="Crie uma senha forte"></div>
+    <div class="field"><label>Carga horária diária padrão</label>
+      <select id="c-hours"><option value="4">4 horas</option><option value="6">6 horas</option><option value="8" selected>8 horas</option></select>
+    </div>
+    <button class="btn-p" id="btn-create" onclick="createCompany()">Criar empresa</button>
+    <button class="btn-g" onclick="showCard('card-admin')">← Voltar</button>
+  </div>
+</div>
+
+<!-- EMPLOYEE VIEW -->
+<div id="emp-view" class="app" style="display:none">
+  <header>
+    <div class="logo"><div class="logo-mark">⏱</div><div class="logo-text">Ponto<span>Fácil</span></div></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-pill"><div class="dot"></div><span id="ev-name"></span></div>
+      <button class="logout-btn" onclick="logout()">✕</button>
+    </div>
+  </header>
+  <div class="clock-block">
+    <div id="live-clock">--:--:--</div>
+    <div id="live-date"></div>
+  </div>
+  <div class="rest-block" id="rest-block">
+    <div class="rb-title">🔒 Descanso obrigatório</div>
+    <div class="rb-count" id="rest-count">--:--</div>
+    <div class="rb-sub">Entrada liberada após 11h de descanso desde a última saída</div>
+  </div>
+  <div class="status-banner idle" id="status-banner">
+    <div class="sb-icon" id="sb-icon">😴</div>
+    <div class="sb-info">
+      <div class="sb-label">Status atual</div>
+      <div class="sb-val gray" id="sb-val">Sem registro hoje</div>
+    </div>
+    <div class="hours-badge" id="hours-badge">—</div>
+  </div>
+  <div class="lunch-reminder" id="lunch-reminder">
+    <div class="lr-icon">🍽️</div>
+    <div class="lr-body">
+      <div class="lr-title">Hora do almoço!</div>
+      <div class="lr-sub">Você está trabalhando há mais de 5 horas sem pausa. Não esqueça de registrar seu intervalo!</div>
+    </div>
+  </div>
+
+  <div class="alert-warn" id="lunch-alert">
+    ⚠️ <div><strong>1ª pausa abaixo do mínimo!</strong> Foi de <span id="lunch-dur"></span> — mínimo é 1h30.</div>
+  </div>
+  <div class="punch-row">
+    <button class="punch-btn btn-in"    id="btn-in"    onclick="punch('entrada')" disabled>
+      <span class="p-icon">▶</span>Entrada<span class="p-sub">Iniciar jornada</span>
+    </button>
+    <button class="punch-btn btn-pause" id="btn-pause" onclick="punch('pausa')" disabled>
+      <span class="p-icon">⏸</span>Pausa<span class="p-sub">Sair para intervalo</span>
+    </button>
+    <button class="punch-btn btn-ret"   id="btn-ret"   onclick="punch('retorno')" disabled>
+      <span class="p-icon">↩</span>Retorno<span class="p-sub">Voltar do intervalo</span>
+    </button>
+    <button class="punch-btn btn-out"   id="btn-out"   onclick="punch('saida')" disabled>
+      <span class="p-icon">■</span>Saída<span class="p-sub">Encerrar jornada</span>
+    </button>
+  </div>
+  <div class="section-title">Registros de hoje</div>
+  <div class="timeline" id="timeline"><div class="empty"><div class="ei">📋</div>Nenhum registro ainda</div></div>
+</div>
+
+<!-- ADMIN VIEW -->
+<div id="admin-view" class="app" style="display:none">
+  <header>
+    <div class="logo"><div class="logo-mark">⏱</div><div class="logo-text">Ponto<span>Fácil</span></div></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-pill"><div class="dot"></div><span id="av-company"></span></div>
+      <button class="logout-btn" onclick="logout()">✕</button>
+    </div>
+  </header>
+  <div class="tabs">
+    <button class="tab active" onclick="adminTab('dashboard')">📊 Hoje</button>
+    <button class="tab" onclick="adminTab('relatorio')">📋 Relatório</button>
+    <button class="tab" onclick="adminTab('equipe')">👥 Equipe</button>
+    <button class="tab" onclick="adminTab('ajuste')">✏️ Ajuste</button>
+  </div>
+  <div id="panel-dashboard" class="panel active">
+    <div class="section-title" id="dash-date"></div>
+    <div id="dash-content"><div class="loading"><div class="spinner"></div>Carregando...</div></div>
+  </div>
+  <div id="panel-relatorio" class="panel">
+    <div class="report-controls">
+      <input type="month" id="r-month">
+      <select id="r-emp"><option value="">Todos</option></select>
+      <button class="export-btn" onclick="exportCSV()">⬇ CSV</button>
+    </div>
+    <div class="report-card">
+      <table class="rtable">
+        <thead><tr><th>Data</th><th>Funcionário</th><th>Entrada</th><th>Saída</th><th>Pausas</th><th>Total</th><th>Extra</th></tr></thead>
+        <tbody id="r-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="panel-equipe" class="panel">
+    <div class="section-title">Funcionários</div>
+    <div class="emp-list" id="emp-list"></div>
+    <div class="add-form">
+      <h3>➕ Novo funcionário</h3>
+      <div class="form2">
+        <div class="field" style="margin:0"><label>Nome</label><input id="ne-name" type="text" placeholder="Ana Silva"></div>
+        <div class="field" style="margin:0"><label>Cargo</label><input id="ne-role" type="text" placeholder="Recepcionista"></div>
+      </div>
+      <div class="form2">
+        <div class="field" style="margin:0"><label>Horas/dia</label>
+          <select id="ne-hours"><option value="4">4h</option><option value="6">6h</option><option value="8" selected>8h</option></select>
+        </div>
+        <div class="field" style="margin:0"><label>Emoji</label><input id="ne-emoji" type="text" placeholder="👤" maxlength="4"></div>
+      </div>
+      <button class="btn-p" onclick="addEmployee()" style="margin-top:6px">Cadastrar</button>
+    </div>
+  </div>
+
+  <div id="panel-ajuste" class="panel">
+    <div class="add-form">
+      <h3>✏️ Lançamento manual de ponto</h3>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Use para corrigir ou lançar registros esquecidos de dias anteriores.</p>
+      <div class="field"><label>Funcionário</label>
+        <select id="aj-emp" onchange="previewAjuste()"><option value="">Selecione...</option></select>
+      </div>
+      <div class="field"><label>Data</label>
+        <input type="date" id="aj-date" onchange="previewAjuste()">
+      </div>
+      <div class="form2">
+        <div class="field" style="margin:0"><label>Entrada</label><input type="time" id="aj-entrada"></div>
+        <div class="field" style="margin:0"><label>Saída</label><input type="time" id="aj-saida"></div>
+      </div>
+      <div class="form2" style="margin-top:10px">
+        <div class="field" style="margin:0"><label>Saída almoço</label><input type="time" id="aj-pausa"></div>
+        <div class="field" style="margin:0"><label>Retorno almoço</label><input type="time" id="aj-retorno"></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px">* Almoço é opcional. Entrada e Saída são obrigatórios.</p>
+      <button class="btn-p" onclick="salvarAjuste()" style="margin-top:14px">💾 Salvar registro</button>
+    </div>
+    <div style="margin-top:20px">
+      <div class="section-title">Registros existentes neste dia</div>
+      <div id="aj-preview"><div class="empty" style="padding:20px"><div class="ei">📅</div>Selecione um funcionário e uma data</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// FIREBASE CONFIG
+// ═══════════════════════════════════════════
+const DB_URL = 'https://ponto-facil-controle-default-rtdb.firebaseio.com';
+
+async function fbGet(path) {
+  try {
+    const r = await fetch(`${DB_URL}/${path}.json`);
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+async function fbSet(path, data) {
+  try {
+    const r = await fetch(`${DB_URL}/${path}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function fbPush(path, data) {
+  try {
+    const r = await fetch(`${DB_URL}/${path}.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+async function fbDelete(path) {
+  try {
+    await fetch(`${DB_URL}/${path}.json`, { method: 'DELETE' });
+  } catch {}
+}
+
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+const LUNCH_MIN = 90  * 60 * 1000;
+const REST_MIN  = 11  * 60 * 60 * 1000;
+
+// ═══════════════════════════════════════════
+// SESSION
+// ═══════════════════════════════════════════
+let sess = JSON.parse(localStorage.getItem('pf5_s') || 'null');
+let _ref = null;
+let empRecs = [];
+
+window.addEventListener('DOMContentLoaded', async () => {
+  if      (sess?.type === 'emp')   await mountEmp();
+  else if (sess?.type === 'admin') await mountAdmin();
+  else showSetup();
+  startClock();
+});
+
+function showSetup() {
+  document.getElementById('setup-wrap').style.display = 'flex';
+  ['emp-view','admin-view'].forEach(id => document.getElementById(id).style.display = 'none');
+}
+function showCard(id) {
+  ['card-emp','card-admin','card-create'].forEach(c =>
+    document.getElementById(c).style.display = c === id ? 'block' : 'none');
+}
+function saveSess() { localStorage.setItem('pf5_s', JSON.stringify(sess)); }
+function logout() {
+  sess = null; localStorage.removeItem('pf5_s');
+  clearInterval(_ref); showSetup(); showCard('card-emp');
+}
+
+// ═══════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════
+async function createCompany() {
+  const name  = document.getElementById('c-name').value.trim();
+  const code  = document.getElementById('c-code').value.trim().toUpperCase();
+  const pass  = document.getElementById('c-pass').value;
+  const hours = parseInt(document.getElementById('c-hours').value);
+  if (!name||!code||!pass) { toast('Preencha todos os campos','error'); return; }
+
+  const btn = document.getElementById('btn-create');
+  btn.disabled = true; btn.textContent = 'Criando...';
+
+  const existing = await fbGet(`companies/${code}`);
+  if (existing) { toast('Código já existe — escolha outro','error'); btn.disabled=false; btn.textContent='Criar empresa'; return; }
+
+  const ok = await fbSet(`companies/${code}`, { name, code, pass, defaultHours: hours, employees: {}, createdAt: Date.now() });
+  if (!ok) { toast('Erro ao criar. Verifique sua conexão.','error'); btn.disabled=false; btn.textContent='Criar empresa'; return; }
+
+  sess = { type:'admin', code, companyName: name }; saveSess();
+  toast(`Empresa criada! Código: ${code}`,'ok');
+  setTimeout(mountAdmin, 700);
+}
+
+async function loginEmp() {
+  const code = document.getElementById('l-code').value.trim().toUpperCase();
+  const name = document.getElementById('l-name').value.trim();
+  if (!code||!name) { toast('Preencha o código e seu nome','error'); return; }
+  const co = await fbGet(`companies/${code}`);
+  if (!co) { toast('Código não encontrado','error'); return; }
+  sess = { type:'emp', code, name, companyName: co.name }; saveSess();
+  await mountEmp();
+}
+
+async function loginAdmin() {
+  const code = document.getElementById('a-code').value.trim().toUpperCase();
+  const pass = document.getElementById('a-pass').value;
+  if (!code||!pass) { toast('Preencha código e senha','error'); return; }
+  const co = await fbGet(`companies/${code}`);
+  if (!co)           { toast('Código não encontrado','error'); return; }
+  if (co.pass!==pass){ toast('Senha incorreta','error'); return; }
+  sess = { type:'admin', code, companyName: co.name }; saveSess();
+  await mountAdmin();
+}
+
+// ═══════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const cl = document.getElementById('live-clock');
+    const dl = document.getElementById('live-date');
+    if (cl) cl.textContent = now.toLocaleTimeString('pt-BR');
+    if (dl) dl.textContent = now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    if (sess?.type==='emp') { updateHoursBadge(); updateRestBlock(); }
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+// ═══════════════════════════════════════════
+// EMPLOYEE
+// ═══════════════════════════════════════════
+async function mountEmp() {
+  document.getElementById('setup-wrap').style.display = 'none';
+  document.getElementById('admin-view').style.display = 'none';
+  document.getElementById('emp-view').style.display   = 'block';
+  document.getElementById('ev-name').textContent      = sess.name;
+  await loadEmpData();
+  clearInterval(_ref);
+  _ref = setInterval(loadEmpData, 15000);
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+function dayKey(ts) {
+  const d = ts ? new Date(ts) : new Date();
+  return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+}
+function todayLabel() { return new Date().toLocaleDateString('pt-BR'); }
+
+async function loadEmpData() {
+  const nameKey = sess.name.replace(/[.#$[\]]/g,'_');
+  const todayData = await fbGet(`records/${sess.code}/${dayKey()}/${nameKey}`) || {};
+  empRecs = Object.values(todayData).sort((a,b) => a.ts - b.ts);
+
+  // Check yesterday for last saida (11h rule)
+  const yd = new Date(); yd.setDate(yd.getDate()-1);
+  const ydData = await fbGet(`records/${sess.code}/${dayKey(yd.getTime())}/${nameKey}`) || {};
+  const ydRecs = Object.values(ydData);
+  const allSaidas = [...ydRecs, ...empRecs].filter(r => r.type === 'saida');
+  const lastSaida = allSaidas.length ? allSaidas.reduce((a,b) => a.ts>b.ts?a:b) : null;
+  sess._lastSaida = lastSaida ? lastSaida.ts : null;
+
+  renderEmpView();
+}
+
+function getState(sorted) {
+  let state = 'idle';
+  for (const r of sorted) {
+    if      (r.type==='entrada') state='working';
+    else if (r.type==='pausa')   state='paused';
+    else if (r.type==='retorno') state='working';
+    else if (r.type==='saida')   state='done';
+  }
+  return state;
+}
+
+function restRemaining() {
+  if (!sess?._lastSaida) return 0;
+  return Math.max(0, REST_MIN - (Date.now() - sess._lastSaida));
+}
+
+function updateRestBlock() {
+  const rb = document.getElementById('rest-block');
+  const rc = document.getElementById('rest-count');
+  const rem = restRemaining();
+  if (rem > 0) { rb.classList.add('show'); rc.textContent = fmtMs(rem); }
+  else           rb.classList.remove('show');
+}
+
+function renderEmpView() {
+  const sorted = empRecs;
+  const state  = getState(sorted);
+  const restMs = restRemaining();
+
+  const canIn = (state==='idle'||state==='done') && restMs===0;
+  document.getElementById('btn-in').disabled    = !canIn;
+  document.getElementById('btn-pause').disabled = state !== 'working';
+  document.getElementById('btn-ret').disabled   = state !== 'paused';
+  document.getElementById('btn-out').disabled   = state !== 'working';
+
+  const banner = document.getElementById('status-banner');
+  const icon   = document.getElementById('sb-icon');
+  const val    = document.getElementById('sb-val');
+  const S = {
+    idle:    {cls:'idle',   ic:'😴', txt:'Sem registro hoje',    vc:'gray'},
+    working: {cls:'active', ic:'💼', txt:'Trabalhando',           vc:'green'},
+    paused:  {cls:'paused', ic:'⏸', txt:'Em pausa / intervalo', vc:'yellow'},
+    done:    {cls:'done',   ic:'✅', txt:'Jornada encerrada',    vc:'gray'},
+  };
+  const s = S[state]||S.idle;
+  banner.className = `status-banner ${s.cls}`;
+  icon.textContent = s.ic; val.textContent = s.txt; val.className = `sb-val ${s.vc}`;
+  updateHoursBadge();
+
+  // Lunch reminder — 5h working without pause
+  const reminder = document.getElementById('lunch-reminder');
+  const entrada = sorted.find(r=>r.type==='entrada');
+  const hasPausa = sorted.some(r=>r.type==='pausa');
+  const hasSaida = sorted.some(r=>r.type==='saida');
+  if (entrada && !hasPausa && !hasSaida && state==='working') {
+    const workedMs = Date.now() - entrada.ts;
+    if (workedMs >= 5 * 3600000) reminder.classList.add('show');
+    else reminder.classList.remove('show');
+  } else { reminder.classList.remove('show'); }
+
+  // First-break alert
+  const pausas   = sorted.filter(r=>r.type==='pausa');
+  const retornos = sorted.filter(r=>r.type==='retorno');
+  const alert    = document.getElementById('lunch-alert');
+  if (pausas.length>=1 && retornos.length>=1) {
+    const fp = pausas[0].ts, fr = retornos.find(r=>r.ts>fp);
+    if (fr && (fr.ts-fp) < LUNCH_MIN) {
+      document.getElementById('lunch-dur').textContent = fmtMs(fr.ts-fp);
+      alert.classList.add('show');
+    } else alert.classList.remove('show');
+  } else alert.classList.remove('show');
+
+  renderTimeline(sorted);
+}
+
+function renderTimeline(sorted) {
+  const tl = document.getElementById('timeline');
+  if (!sorted.length) { tl.innerHTML='<div class="empty"><div class="ei">📋</div>Nenhum registro ainda</div>'; return; }
+  const colors = {entrada:'#1a6b4a',pausa:'#b7770d',retorno:'#8a8070',saida:'#c0392b'};
+  const labels = {entrada:'Entrada',pausa:'Pausa',retorno:'Retorno',saida:'Saída'};
+  const pausas   = sorted.filter(r=>r.type==='pausa');
+  const retornos = sorted.filter(r=>r.type==='retorno');
+
+  tl.innerHTML = sorted.map(r => {
+    let sub='', warnHtml='';
+    if (r.type==='pausa') {
+      const pIdx = pausas.indexOf(r);
+      const ret  = retornos.find(x=>x.ts>r.ts);
+      const closeTs = ret ? ret.ts : (sorted.find(x=>x.type==='saida'&&x.ts>r.ts)||{ts:Date.now()}).ts;
+      const dur  = closeTs - r.ts;
+      const hasRet = !!ret;
+      sub = `${pIdx+1}ª pausa${hasRet?' · '+fmtMs(dur):' · em andamento...'}`;
+      if (pIdx===0 && hasRet && dur<LUNCH_MIN) warnHtml=` <span class="tl-warn">⚠ mín. 1h30</span>`;
+    }
+    if (r.type==='retorno') {
+      const rIdx = retornos.indexOf(r);
+      sub = `Retorno da ${rIdx+1}ª pausa`;
+    }
+    return `<div class="tl-item">
+      <div class="tl-pip" style="background:${colors[r.type]||'#999'}"></div>
+      <div class="tl-body">
+        <div class="tl-label">${labels[r.type]||r.type}${warnHtml}</div>
+        ${sub?`<div class="tl-sub">${sub}</div>`:''}
+      </div>
+      <div class="tl-time">${r.time}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateHoursBadge() {
+  const b = document.getElementById('hours-badge'); if(!b) return;
+  const {worked} = calcWorked(empRecs); b.textContent = worked>0 ? fmtMs(worked) : '—';
+}
+
+async function punch(type) {
+  if (type==='entrada' && restRemaining()>0) {
+    toast(`🔒 Faltam ${fmtMs(restRemaining())} para completar 11h de descanso.`,'error'); return;
+  }
+  if (type==='retorno') {
+    const pausas   = empRecs.filter(r=>r.type==='pausa');
+    const retornos = empRecs.filter(r=>r.type==='retorno');
+    if (retornos.length===0 && pausas.length>=1) {
+      const dur = Date.now() - pausas[0].ts;
+      if (dur < LUNCH_MIN) toast(`⚠ 1ª pausa de ${fmtMs(dur)} — mínimo é 1h30. Registrado assim mesmo.`,'warn');
+    }
+  }
+
+  const now = new Date();
+  const rec = {
+    name: sess.name, type,
+    time: now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    ts: now.getTime(), date: todayLabel()
+  };
+
+  const nameKey = sess.name.replace(/[.#$[\]]/g,'_');
+  await fbPush(`records/${sess.code}/${dayKey()}/${nameKey}`, rec);
+  if (type==='saida') sess._lastSaida = now.getTime();
+
+  await loadEmpData();
+  const msgs = {entrada:'Entrada registrada ✓',pausa:'Pausa registrada ✓',retorno:'Retorno registrado ✓',saida:'Saída registrada ✓'};
+  toast(msgs[type]||'Registrado ✓','ok');
+}
+
+// ═══════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════
+async function mountAdmin() {
+  document.getElementById('setup-wrap').style.display = 'none';
+  document.getElementById('emp-view').style.display   = 'none';
+  document.getElementById('admin-view').style.display = 'block';
+  document.getElementById('av-company').textContent   = sess.companyName;
+  const now = new Date();
+  document.getElementById('r-month').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}`;
+  await loadDashboard();
+  clearInterval(_ref);
+  _ref = setInterval(loadDashboard, 20000);
+}
+
+function adminTab(name) {
+  ['dashboard','relatorio','equipe','ajuste'].forEach((n,i) => {
+    document.querySelectorAll('.tab')[i].classList.toggle('active', n===name);
+    document.getElementById('panel-'+n).classList.toggle('active', n===name);
+  });
+  if (name==='relatorio') renderReport();
+  if (name==='equipe')    renderTeam();
+  if (name==='ajuste')    initAjuste();
+}
+
+async function loadDashboard() {
+  const co = await fbGet(`companies/${sess.code}`); if(!co) return;
+  document.getElementById('dash-date').textContent = `Hoje — ${todayLabel()}`;
+  const todayData = await fbGet(`records/${sess.code}/${dayKey()}`) || {};
+  const el = document.getElementById('dash-content');
+
+  const byPerson = {};
+  for (const [nameKey, recs] of Object.entries(todayData)) {
+    const arr = Object.values(recs).sort((a,b)=>a.ts-b.ts);
+    if (arr.length) byPerson[arr[0].name] = arr;
+  }
+  const emps = co.employees ? Object.values(co.employees) : [];
+  emps.forEach(e => { if (!byPerson[e.name]) byPerson[e.name] = []; });
+
+  const names = Object.keys(byPerson).sort();
+  if (!names.length) { el.innerHTML='<div class="empty"><div class="ei">👥</div>Nenhum registro hoje</div>'; return; }
+
+  const bgs = ['#e8f5ef','#fef6e4','#fdecea','#f0f0ff','#fff5e6','#f5f0ff'];
+  el.innerHTML = `<div class="dash-card">${names.map((name,i) => {
+    const recs  = byPerson[name];
+    const emp   = emps.find(e=>e.name===name);
+    const state = getState(recs);
+    const lastSaida = [...recs].filter(r=>r.type==='saida').slice(-1)[0];
+    const restMs = lastSaida ? Math.max(0, REST_MIN-(Date.now()-lastSaida.ts)) : 0;
+    const {worked} = calcWorked(recs);
+    const pausas   = recs.filter(r=>r.type==='pausa');
+    const retornos = recs.filter(r=>r.type==='retorno');
+    const fp=pausas[0], fr=retornos.find(r=>r.ts>fp?.ts);
+    const lunchWarn = fp&&fr&&(fr.ts-fp.ts)<LUNCH_MIN ? ' · ⚠ 1ª pausa curta' : '';
+    let badgeCls='db-off', badgeTxt='Sem registro';
+    if (restMs>0)            {badgeCls='db-rest'; badgeTxt='Descansando';}
+    else if (state==='working'){badgeCls='db-on';  badgeTxt='Trabalhando';}
+    else if (state==='paused') {badgeCls='db-p';   badgeTxt='Em pausa';}
+    else if (state==='done')   {badgeCls='db-off'; badgeTxt='Encerrado';}
+    const firstIn = recs.find(r=>r.type==='entrada');
+    let statusStr = firstIn ? `Desde ${firstIn.time}` : 'Sem registro hoje';
+    if (restMs>0) statusStr = `Descansando — libera em ${fmtMs(restMs)}`;
+    return `<div class="dash-row">
+      <div class="dash-avatar" style="background:${bgs[i%bgs.length]}">${emp?.emoji||'👤'}</div>
+      <div class="dash-info">
+        <div class="dash-name">${name}</div>
+        <div class="dash-status">${statusStr}${lunchWarn}</div>
+      </div>
+      <div class="dash-right">
+        <span class="db ${badgeCls}">${badgeTxt}</span>
+        <span class="dash-time">${worked>0?fmtMs(worked):'—'}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function renderReport() {
+  const co = await fbGet(`companies/${sess.code}`); if(!co) return;
+  const emps = co.employees ? Object.values(co.employees) : [];
+  const empSel = document.getElementById('r-emp');
+  const prev = empSel.value;
+  empSel.innerHTML = '<option value="">Todos</option>' + emps.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+  empSel.value = prev;
+
+  const [yr, mo] = document.getElementById('r-month').value.split('-').map(Number);
+  const empFilter = empSel.value;
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const tbody = document.getElementById('r-body');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
+
+  const rows = [];
+  for (let d=1; d<=daysInMonth; d++) {
+    const dk = `${yr}${pad(mo)}${pad(d)}`;
+    const dayData = await fbGet(`records/${sess.code}/${dk}`) || {};
+    for (const [nameKey, recsObj] of Object.entries(dayData)) {
+      const arr = Object.values(recsObj).sort((a,b)=>a.ts-b.ts);
+      if (!arr.length) continue;
+      const name = arr[0].name;
+      if (empFilter && name!==empFilter) continue;
+      const emp = emps.find(e=>e.name===name);
+      const expected = (emp?.hours||co.defaultHours||8)*3600000;
+      const {worked, totalPauseMs, pauseCount, firstPauseMs, pauseSummary} = calcWorked(arr);
+      const extra = Math.max(0, worked-expected);
+      const firstIn  = arr.find(r=>r.type==='entrada');
+      const lastOut  = arr.filter(r=>r.type==='saida').slice(-1)[0];
+      const dateStr  = `${pad(d)}/${pad(mo)}/${yr}`;
+      rows.push({d, dateStr, name, firstIn, lastOut, worked, extra, firstPauseMs, pauseSummary});
+    }
+  }
+  rows.sort((a,b)=>b.d-a.d);
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Nenhum registro no período</td></tr>'; return; }
+  tbody.innerHTML = rows.map(row => {
+    const cls = row.extra>0?'c-extra':row.worked>0?'c-ok':'';
+    const lunchShort = row.firstPauseMs>0 && row.firstPauseMs<LUNCH_MIN;
+    return `<tr>
+      <td>${row.dateStr}</td>
+      <td style="font-family:var(--font-d);font-weight:600">${row.name}</td>
+      <td>${row.firstIn?.time||'—'}</td>
+      <td>${row.lastOut?.time||'—'}</td>
+      <td>${row.pauseSummary||'—'}${lunchShort?`<span class="sw">⚠ 1ª pausa < 1h30</span>`:''}</td>
+      <td class="${cls}">${row.worked>0?fmtMs(row.worked):'—'}</td>
+      <td class="${row.extra>0?'c-extra':''}">${row.extra>0?fmtMs(row.extra):'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function exportCSV() {
+  const co = await fbGet(`companies/${sess.code}`);
+  const emps = co?.employees ? Object.values(co.employees) : [];
+  const [yr, mo] = document.getElementById('r-month').value.split('-').map(Number);
+  const empFilter = document.getElementById('r-emp').value;
+  const daysInMonth = new Date(yr,mo,0).getDate();
+  let csv = 'Data,Funcionário,Entrada,Saída,Nº Pausas,Total Pausas,1ª Pausa OK,Total Trabalhado,Horas Extras\n';
+  for (let d=1; d<=daysInMonth; d++) {
+    const dk = `${yr}${pad(mo)}${pad(d)}`;
+    const dayData = await fbGet(`records/${sess.code}/${dk}`) || {};
+    for (const [, recsObj] of Object.entries(dayData)) {
+      const arr = Object.values(recsObj).sort((a,b)=>a.ts-b.ts);
+      if (!arr.length) continue;
+      const name = arr[0].name;
+      if (empFilter && name!==empFilter) continue;
+      const emp = emps.find(e=>e.name===name);
+      const expected = (emp?.hours||co.defaultHours||8)*3600000;
+      const {worked,totalPauseMs,pauseCount,firstPauseMs} = calcWorked(arr);
+      const extra = Math.max(0, worked-expected);
+      const firstIn = arr.find(r=>r.type==='entrada'), lastOut = arr.filter(r=>r.type==='saida').slice(-1)[0];
+      csv += [`${pad(d)}/${pad(mo)}/${yr}`,name,firstIn?.time||'',lastOut?.time||'',pauseCount,totalPauseMs>0?fmtMs(totalPauseMs):'',firstPauseMs>0?(firstPauseMs>=LUNCH_MIN?'Sim':'Não'):'—',worked>0?fmtMs(worked):'',extra>0?fmtMs(extra):''].join(',') + '\n';
+    }
+  }
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`ponto_${yr}_${pad(mo)}.csv`; a.click();
+  toast('CSV exportado!','ok');
+}
+
+async function renderTeam() {
+  const co = await fbGet(`companies/${sess.code}`);
+  const list = document.getElementById('emp-list');
+  const emps = co?.employees ? Object.values(co.employees) : [];
+  if (!emps.length) { list.innerHTML='<div class="empty"><div class="ei">👥</div>Nenhum funcionário ainda</div>'; return; }
+  const bgs=['#e8f5ef','#fef6e4','#fdecea','#f0f0ff','#fff5e6'];
+  list.innerHTML = emps.map((e,i)=>`
+    <div class="emp-row">
+      <div class="emp-av" style="background:${bgs[i%bgs.length]}">${e.emoji||'👤'}</div>
+      <div class="emp-inf"><h4>${e.name}</h4><p>${e.role||'—'} · ${e.hours}h/dia</p></div>
+      <button class="emp-del" onclick="deleteEmployee('${e.name}')">🗑</button>
+    </div>`).join('');
+}
+
+async function addEmployee() {
+  const name  = document.getElementById('ne-name').value.trim();
+  const role  = document.getElementById('ne-role').value.trim();
+  const hours = parseInt(document.getElementById('ne-hours').value);
+  const emoji = document.getElementById('ne-emoji').value.trim()||'👤';
+  if (!name) { toast('Informe o nome','error'); return; }
+  const co = await fbGet(`companies/${sess.code}`);
+  const emps = co?.employees||{};
+  const nameKey = name.replace(/[.#$[\] ]/g,'_');
+  if (emps[nameKey]) { toast('Funcionário já existe','error'); return; }
+  emps[nameKey] = {name,role,hours,emoji};
+  await fbSet(`companies/${sess.code}/employees`, emps);
+  document.getElementById('ne-name').value=''; document.getElementById('ne-role').value=''; document.getElementById('ne-emoji').value='';
+  renderTeam(); toast('Funcionário cadastrado!','ok');
+}
+
+async function deleteEmployee(name) {
+  if (!confirm(`Remover ${name}?`)) return;
+  const nameKey = name.replace(/[.#$[\] ]/g,'_');
+  await fbDelete(`companies/${sess.code}/employees/${nameKey}`);
+  renderTeam(); toast('Removido','ok');
+}
+
+// ═══════════════════════════════════════════
+// AJUSTE MANUAL
+// ═══════════════════════════════════════════
+async function initAjuste() {
+  const co = await fbGet(`companies/${sess.code}`); if (!co) return;
+  const emps = co.employees ? Object.values(co.employees) : [];
+  const sel = document.getElementById('aj-emp');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">Selecione...</option>' + emps.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
+  sel.value = prev;
+  // Default date = today
+  const today = new Date();
+  const dv = document.getElementById('aj-date');
+  if (!dv.value) dv.value = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+}
+
+async function previewAjuste() {
+  const name = document.getElementById('aj-emp').value;
+  const dateVal = document.getElementById('aj-date').value;
+  const preview = document.getElementById('aj-preview');
+  if (!name || !dateVal) { preview.innerHTML='<div class="empty" style="padding:20px"><div class="ei">📅</div>Selecione um funcionário e uma data</div>'; return; }
+
+  const [yr,mo,dd] = dateVal.split('-');
+  const dk = `${yr}${mo}${dd}`;
+  const nameKey = name.replace(/[.#$[\] ]/g,'_');
+  const recsObj = await fbGet(`records/${sess.code}/${dk}/${nameKey}`) || {};
+  const recs = Object.values(recsObj).sort((a,b)=>a.ts-b.ts);
+
+  if (!recs.length) { preview.innerHTML='<div class="empty" style="padding:20px"><div class="ei">📋</div>Nenhum registro neste dia</div>'; return; }
+
+  const colors={entrada:'#1a6b4a',pausa:'#b7770d',retorno:'#8a8070',saida:'#c0392b'};
+  const labels={entrada:'Entrada',pausa:'Saída almoço',retorno:'Retorno almoço',saida:'Saída'};
+  preview.innerHTML = `<div class="timeline">${recs.map(r=>`
+    <div class="tl-item">
+      <div class="tl-pip" style="background:${colors[r.type]||'#999'}"></div>
+      <div class="tl-body"><div class="tl-label">${labels[r.type]||r.type}</div></div>
+      <div class="tl-time">${r.time}</div>
+    </div>`).join('')}</div>
+    <button onclick="limparDia('${name}','${dk}')" style="width:100%;margin-top:12px;padding:10px;border-radius:8px;border:1.5px solid var(--accent2);background:var(--accent2-light);color:var(--accent2);font-family:var(--font-d);font-size:13px;font-weight:700;cursor:pointer">🗑 Limpar registros deste dia</button>`;
+}
+
+async function limparDia(name, dk) {
+  if (!confirm(`Apagar todos os registros de ${name} neste dia?`)) return;
+  const nameKey = name.replace(/[.#$[\] ]/g,'_');
+  await fbDelete(`records/${sess.code}/${dk}/${nameKey}`);
+  toast('Registros apagados','ok');
+  previewAjuste();
+}
+
+async function salvarAjuste() {
+  const name    = document.getElementById('aj-emp').value;
+  const dateVal = document.getElementById('aj-date').value;
+  const tIn     = document.getElementById('aj-entrada').value;
+  const tOut    = document.getElementById('aj-saida').value;
+  const tPausa  = document.getElementById('aj-pausa').value;
+  const tRet    = document.getElementById('aj-retorno').value;
+
+  if (!name)    { toast('Selecione o funcionário','error'); return; }
+  if (!dateVal) { toast('Selecione a data','error'); return; }
+  if (!tIn)     { toast('Informe o horário de entrada','error'); return; }
+  if (!tOut)    { toast('Informe o horário de saída','error'); return; }
+
+  const [yr,mo,dd] = dateVal.split('-');
+  const dk = `${yr}${mo}${dd}`;
+  const dateLabel = `${dd}/${mo}/${yr}`;
+  const nameKey = name.replace(/[.#$[\] ]/g,'_');
+
+  // Build timestamp from date + time
+  function makeTs(timeStr) {
+    const [h,m] = timeStr.split(':').map(Number);
+    const d = new Date(parseInt(yr), parseInt(mo)-1, parseInt(dd), h, m, 0);
+    return d.getTime();
+  }
+
+  // Clear existing records for this day/person
+  await fbDelete(`records/${sess.code}/${dk}/${nameKey}`);
+
+  // Push new records
+  const eventos = [{ type:'entrada', time:tIn, ts:makeTs(tIn) }];
+  if (tPausa)  eventos.push({ type:'pausa',   time:tPausa, ts:makeTs(tPausa) });
+  if (tRet)    eventos.push({ type:'retorno', time:tRet,   ts:makeTs(tRet) });
+  eventos.push({ type:'saida', time:tOut, ts:makeTs(tOut) });
+
+  for (const ev of eventos) {
+    await fbPush(`records/${sess.code}/${dk}/${nameKey}`, { name, date:dateLabel, ...ev });
+  }
+
+  toast(`Ponto de ${name} salvo para ${dateLabel} ✓`,'ok');
+  previewAjuste();
+
+  // Clear fields
+  document.getElementById('aj-entrada').value='';
+  document.getElementById('aj-saida').value='';
+  document.getElementById('aj-pausa').value='';
+  document.getElementById('aj-retorno').value='';
+}
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function calcWorked(recs) {
+  const sorted = [...recs].sort((a,b)=>a.ts-b.ts);
+  const entrada = sorted.find(r=>r.type==='entrada');
+  if (!entrada) return{worked:0,totalPauseMs:0,pauseCount:0,firstPauseMs:0,pauseSummary:''};
+  const lastSaida = sorted.filter(r=>r.type==='saida').slice(-1)[0];
+  const endTs = lastSaida ? lastSaida.ts : Date.now();
+  const pausas   = sorted.filter(r=>r.type==='pausa');
+  const retornos = sorted.filter(r=>r.type==='retorno');
+  let totalPauseMs=0, pauseCount=0, firstPauseMs=0;
+  pausas.forEach((p,i) => {
+    const ret = retornos.find(r=>r.ts>p.ts && retornos.indexOf(r)>=i);
+    const closeTs = ret ? ret.ts : endTs;
+    const dur = Math.max(0, closeTs-p.ts);
+    totalPauseMs += dur; pauseCount++;
+    if (i===0) firstPauseMs = ret ? dur : 0;
+  });
+  const worked = Math.max(0, (endTs-entrada.ts)-totalPauseMs);
+  const pauseSummary = pauseCount>0 ? `${pauseCount}x · ${fmtMs(totalPauseMs)}` : '';
+  return{worked,totalPauseMs,pauseCount,firstPauseMs,pauseSummary};
+}
+
+function fmtMs(ms) {
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+  return `${h}h ${pad(m)}m`;
+}
+
+function toast(msg, type='ok') {
+  const el=document.getElementById('toast'); el.textContent=msg; el.className=`toast ${type} show`;
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+document.addEventListener('change', e => {
+  if (e.target.id==='r-month'||e.target.id==='r-emp') renderReport();
+});
+</script>
+</body>
+</html>
