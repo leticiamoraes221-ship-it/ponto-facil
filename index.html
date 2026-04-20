@@ -770,7 +770,6 @@ async function renderReport() {
   const monthVal = document.getElementById('r-month').value;
   if (!monthVal) { toast('Selecione o mês','warn'); return; }
   const [yr, mo] = monthVal.split('-').map(Number);
-  const empFilter = document.getElementById('r-emp').value;
   const daysInMonth = new Date(yr, mo, 0).getDate();
   const tbody = document.getElementById('r-body');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div>Buscando registros...</td></tr>';
@@ -797,28 +796,18 @@ async function renderReport() {
   empSel.innerHTML = '<option value="">Todos</option>' + [...allNames].sort().map(n=>`<option value="${n}">${n}</option>`).join('');
   if ([...allNames].includes(prev)) empSel.value = prev;
   const empFilter = empSel.value;
-  const daysInMonth = new Date(yr, mo, 0).getDate();
-  const tbody = document.getElementById('r-body');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div>Buscando registros...</td></tr>';
 
-  // Fetch all days in parallel for speed
+  // Build rows
   const rows = [];
-  const fetches = [];
-  for (let d=1; d<=daysInMonth; d++) {
-    fetches.push({ d, dk: `${yr}${pad(mo)}${pad(d)}` });
-  }
-  const results = await Promise.all(fetches.map(f => fbGet(`records/${sess.code}/${f.dk}`).then(data => ({ d: f.d, data: data||{} }))));
-
   for (const { d, data: dayData } of results) {
     for (const [nameKey, recsObj] of Object.entries(dayData)) {
       const arr = Object.values(recsObj).sort((a,b)=>a.ts-b.ts);
       if (!arr.length) continue;
       const name = arr[0].name;
-      // Match filter: check if name contains filter text (case insensitive) or exact match
-      if (empFilter && !name.toLowerCase().includes(empFilter.toLowerCase()) && name !== empFilter) continue;
-      const emp = emps.find(e=>e.name.toLowerCase()===name.toLowerCase() || name.toLowerCase().includes(e.name.toLowerCase().split(' ')[0].toLowerCase()));
+      if (empFilter && name !== empFilter) continue;
+      const emp = emps.find(e=>e.name.toLowerCase()===name.toLowerCase());
       const expected = (emp?.hours||co.defaultHours||8)*3600000;
-      const {worked, totalPauseMs, pauseCount, firstPauseMs, pauseSummary} = calcWorked(arr);
+      const {worked, firstPauseMs, pauseSummary} = calcWorked(arr);
       const extra = Math.max(0, worked-expected);
       const firstIn  = arr.find(r=>r.type==='entrada');
       const lastOut  = arr.filter(r=>r.type==='saida').slice(-1)[0];
