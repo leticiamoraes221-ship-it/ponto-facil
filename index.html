@@ -771,16 +771,24 @@ async function renderReport() {
   empSel.innerHTML = '<option value="">Todos</option>' + emps.map(e=>`<option value="${e.name}">${e.name}</option>`).join('');
   empSel.value = prev;
 
-  const [yr, mo] = document.getElementById('r-month').value.split('-').map(Number);
+  const monthVal = document.getElementById('r-month').value;
+  if (!monthVal) { toast('Selecione o mês','warn'); return; }
+
+  const [yr, mo] = monthVal.split('-').map(Number);
   const empFilter = empSel.value;
   const daysInMonth = new Date(yr, mo, 0).getDate();
   const tbody = document.getElementById('r-body');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></td></tr>';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div>Buscando registros...</td></tr>';
 
+  // Fetch all days in parallel for speed
   const rows = [];
+  const fetches = [];
   for (let d=1; d<=daysInMonth; d++) {
-    const dk = `${yr}${pad(mo)}${pad(d)}`;
-    const dayData = await fbGet(`records/${sess.code}/${dk}`) || {};
+    fetches.push({ d, dk: `${yr}${pad(mo)}${pad(d)}` });
+  }
+  const results = await Promise.all(fetches.map(f => fbGet(`records/${sess.code}/${f.dk}`).then(data => ({ d: f.d, data: data||{} }))));
+
+  for (const { d, data: dayData } of results) {
     for (const [nameKey, recsObj] of Object.entries(dayData)) {
       const arr = Object.values(recsObj).sort((a,b)=>a.ts-b.ts);
       if (!arr.length) continue;
