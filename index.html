@@ -838,7 +838,7 @@ async function exportCSV() {
   const [yr, mo] = document.getElementById('r-month').value.split('-').map(Number);
   const empFilter = document.getElementById('r-emp').value;
   const daysInMonth = new Date(yr,mo,0).getDate();
-  let csv = 'Data,Funcionário,Entrada,Saída,Nº Pausas,Total Pausas,1ª Pausa OK,Total Trabalhado,Horas Extras\n';
+  let csv = 'Data,Funcionário,Entrada,Saída,Pausa 1 Saída,Pausa 1 Retorno,Pausa 2 Saída,Pausa 2 Retorno,Pausa 3 Saída,Pausa 3 Retorno,Nº Pausas,Total Pausas,1ª Pausa OK,Total Trabalhado,Horas Extras\n';
   for (let d=1; d<=daysInMonth; d++) {
     const dk = `${yr}${pad(mo)}${pad(d)}`;
     const dayData = await fbGet(`records/${sess.code}/${dk}`) || {};
@@ -851,8 +851,25 @@ async function exportCSV() {
       const expected = (emp?.hours||co.defaultHours||8)*3600000;
       const {worked,totalPauseMs,pauseCount,firstPauseMs} = calcWorked(arr);
       const extra = Math.max(0, worked-expected);
-      const firstIn = arr.find(r=>r.type==='entrada'), lastOut = arr.filter(r=>r.type==='saida').slice(-1)[0];
-      csv += [`${pad(d)}/${pad(mo)}/${yr}`,name,firstIn?.time||'',lastOut?.time||'',pauseCount,totalPauseMs>0?fmtMs(totalPauseMs):'',firstPauseMs>0?(firstPauseMs>=LUNCH_MIN?'Sim':'Não'):'—',worked>0?fmtMs(worked):'',extra>0?fmtMs(extra):''].join(',') + '\n';
+      const firstIn  = arr.find(r=>r.type==='entrada');
+      const lastOut  = arr.filter(r=>r.type==='saida').slice(-1)[0];
+      // Extract individual pause/return times
+      const pausas   = arr.filter(r=>r.type==='pausa');
+      const retornos = arr.filter(r=>r.type==='retorno');
+      const p1s = pausas[0]?.time   || '';
+      const p1r = retornos[0]?.time || '';
+      const p2s = pausas[1]?.time   || '';
+      const p2r = retornos[1]?.time || '';
+      const p3s = pausas[2]?.time   || '';
+      const p3r = retornos[2]?.time || '';
+      csv += [
+        `${pad(d)}/${pad(mo)}/${yr}`, name,
+        firstIn?.time||'', lastOut?.time||'',
+        p1s, p1r, p2s, p2r, p3s, p3r,
+        pauseCount, totalPauseMs>0?fmtMs(totalPauseMs):'',
+        firstPauseMs>0?(firstPauseMs>=LUNCH_MIN?'Sim':'Não'):'—',
+        worked>0?fmtMs(worked):'', extra>0?fmtMs(extra):''
+      ].join(',') + '\n';
     }
   }
   const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
